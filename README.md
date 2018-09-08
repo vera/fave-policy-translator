@@ -2,7 +2,7 @@
 
 ## How to run
 
-The policy translator was developed and tested with Python version 2.7.
+The Policy Translator was developed and tested with Python version 2.7.
 
 It can be executed using the command
 
@@ -14,11 +14,13 @@ or
 
 ``./policy_translator.py INVENTORY-FILE POLICY-FILE``
 
-and export of reachability tables in HTML or CSV format can be toggled using the command-line options ``--html`` and ``--csv``.
+(if inventory and policies are in separate files).
+
+Export of reachability tables in HTML or CSV format can be toggled using the command-line options ``--html`` and ``--csv``.
 
 ## Example files
 
-Two example files that contain both an inventory and policies are enclosed with the policy translator.
+Two example files that contain both an inventory and policies are enclosed with the policy translator. They are called ``ifi-policy.txt`` and ``fml-paper-policy.txt``. They can be used as input files for the Policy Translator using the first command specified in the section above.
 
 ## License
 

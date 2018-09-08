@@ -253,11 +253,15 @@ class Policy(object):
 						"\t\t\t\t\t<div class='tooltip'>\n"
 						"\t\t\t\t\t\t&#x2705;\n"
 						"\t\t\t\t\t\t<span class='tooltiptext'>"))
+						if self.default_policy:
+							html_list.append("NICHT<br/>(</br>")
 						for counter, cond in enumerate(self.policies[(role_from, role_to)].conditions):
 							if not counter == 0:
 								html_list.append("ODER<br/>")
 							for key, value in cond.iteritems():
 								html_list.append("%s = %s<br/>" % (key, value))
+						if self.default_policy:
+							html_list.append(")")
 				 		html_list.append(("</span>\n"
 						"\t\t\t\t\t</div>\n"
 						"\t\t\t\t</td>\n"))
@@ -640,6 +644,11 @@ class ReachabilityPolicy(object):
 		conditions: A list of dictionaries containing attribute-value-pairs
 			that specify some condition, e.g., "port": 22.
 			All list entries are considered to be connected by "OR".
+			Semantics differ depending on the default policy of the Policy
+			object this reachability policy belongs to. If the default policy
+			is "deny", these are the conditions under which reachability will
+			be allowed. If the default policy is "allow", these are the
+			conditions under which reachability will be denied.
 	"""
 
 	def __init__(self, role_from, role_to, policy, conditions=None):
@@ -661,53 +670,33 @@ class ReachabilityPolicy(object):
 		"""Adds or removes conditions.
 
 		Each new condition is considered separately.
-		The following is true if the default policy is "deny":
 		If it is a superset of some condition that already exists (= more strict),
 		it will be discarded.
 		If it is a subset of some condition that already exists (= less strict),
 		the already existing condition will be replaced by it.
 		If it is neither, it will be added as an additional "OR" operand.
-		If the default policy is "allow", the opposite of the above statements
-		is true.
 
-		If the default policy is "deny", an empty list of conditions means that
-		reachability is allowed unconditionally. Therefore, the empty list
-		overpowers all other lists of conditions.
-		(If the default policy is "allow", an empty list of conditions means
-		an unconditional denial. The empty list is therefore not
-		all-overpowering. Adding conditions under which reachability will be
-		allowed is possible.)
+		An empty list of conditions means that reachability is allowed or denied
+		(depending on the default policy) unconditionally. Therefore, the empty
+		list overpowers all other lists of conditions.
 
 		Args:
 			new_conditions: A list of dictionaries.
 		"""
-		if not self.policy.default_policy:
-			if self.conditions == []:
-				return
-			elif new_conditions == []:
-				self.conditions = []
-				return
+		if self.conditions == []:
+			return
+		elif new_conditions == []:
+			self.conditions = []
+			return
 
-			for new_condition in new_conditions:
-				append = True
-				for condition in self.conditions:
-					if condition.viewitems() <= new_condition.viewitems():
-						append = False
-						break
-					elif new_condition.viewitems() < condition.viewitems():
-						self.conditions.remove(condition)
-						break
-				if append:
-					self.conditions.append(new_condition)
-		else:
-			for new_condition in new_conditions:
-				append = True
-				for condition in self.conditions:
-					if new_condition.viewitems() < condition.viewitems():
-						append = False
-						break
-					elif condition.viewitems() <= new_condition.viewitems():
-						self.conditions.remove(condition)
-						break
-				if append:
-					self.conditions.append(new_condition)
+		for new_condition in new_conditions:
+			append = True
+			for condition in self.conditions:
+				if condition.viewitems() <= new_condition.viewitems():
+					append = False
+					break
+				elif new_condition.viewitems() < condition.viewitems():
+					self.conditions.remove(condition)
+					break
+			if append:
+				self.conditions.append(new_condition)
