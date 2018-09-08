@@ -54,7 +54,7 @@ def main():
             html_file.write(policy.to_html())
 
         if args.generate_csv:
-            csv_file = open(prefix + '-reachability-vlan.csv', 'w')
+            csv_file = open(prefix + '-reachability.csv', 'w')
             csv_file.write(policy.vlans_to_csv())
     except PolicyException, exception:
         print("Fehler: %s" % exception)
