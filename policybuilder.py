@@ -61,7 +61,7 @@ class PolicyBuilder(object):
 
     policy_regex = re.compile(r"""
     (\t \# .*\n | (\t)?\n)*
-    \t (?P<role_from> %s?) [ \t]* (?P<op> --->|<->>|<-->|-->>) [ \t]* (?P<role_to>  %s)(.(?P<service_to> (%s | [*])))? [\n]+
+    \t (?P<role_from> %s?) [ \t]* (?P<op> --->|<-->|<->>|--/->|<-/->|-/->>) [ \t]* (?P<role_to>  %s)(.(?P<service_to> (%s | [*])))? [\n]+
     """ % (name_pattern, name_pattern, name_pattern), re.X)
 
     @classmethod
@@ -163,7 +163,7 @@ class PolicyBuilder(object):
                         if op == "<-/->":
                             policy.add_reachability_policy(role_to, role_from, service_to)
                     elif op == "-/->>":
-                        policy.add_reachability_policy(role_from, role_to, condition={"state": "RELATED,ESTABLISHED"})
+                        policy.add_reachability_policy(role_from, role_to, condition={"state": "NEW,INVALID"})
 
     @classmethod
     def match(self, regex, chars, function=None):
