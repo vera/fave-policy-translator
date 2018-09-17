@@ -20,7 +20,14 @@ Export of reachability tables in HTML or CSV format can be toggled using the com
 
 ## Example files
 
-Two example files that contain both an inventory and policies are enclosed with the policy translator. They are called ``ifi-policy.txt`` and ``fml-paper-policy.txt``. They can be used as input files for the Policy Translator using the first command specified in the section above.
+Two example files that contain both an inventory and policies are enclosed with the policy translator. 
+
+1. ``examples/ifi-policy.txt``
+2. ``examples/fml-paper-policy.txt``
+
+They can be used as input files for the Policy Translator using the first command specified in the section above.
+
+Example: ``./policy_translator.py --html --csv examples/ifi-policy.txt``
 
 ## License
 
