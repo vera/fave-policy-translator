@@ -55,7 +55,7 @@ class PolicyBuilder(object):
     policies_regex = re.compile(r"""
     (\n | \# .*\n)*
     def [ ] policies\(default: [ ] (?P<default> allow | deny)\) [\n]+
-        (?P<policies> (\t \# .* \n | (\t)? \n | \t %s? [ \t]* (--->|<->>|<-->|-->>) [ \t]* %s(.(%s | [*]))? [\n]*)*)
+        (?P<policies> (\t \# .* \n | (\t)? \n | \t %s? [ \t]* (--->|<-->|<->>|--/->|<-/->|-/->>) [ \t]* %s(.(%s | [*]))? [\n]*)*)
     end [\n]+
     """ % (name_pattern, name_pattern, name_pattern), re.X)
 
@@ -149,15 +149,21 @@ class PolicyBuilder(object):
             for match in single_policy_matches:
                 role_from, role_to, op, service_to = match.group("role_from"), match.group("role_to"), match.group("op"), match.group("service_to")
 
-                if op == "<->>":
-                    policy.add_reachability_policy(role_from, role_to, service_to)
-                    policy.add_reachability_policy(role_to, role_from, condition={"state": "RELATED,ESTABLISHED"})
-                elif op == "-->>":
-                    policy.add_reachability_policy(role_from, role_to, condition={"state": "RELATED,ESTABLISHED"})
+                if not policy.default_policy:
+                    if op == "<->>":
+                        policy.add_reachability_policy(role_from, role_to, service_to)
+                        policy.add_reachability_policy(role_to, role_from, condition={"state": "RELATED,ESTABLISHED"})
+                    elif op == "--->" or op == "<-->":
+                        policy.add_reachability_policy(role_from, role_to, service_to)
+                        if op == "<-->":
+                            policy.add_reachability_policy(role_to, role_from, service_to)
                 else:
-                    policy.add_reachability_policy(role_from, role_to, service_to)
-                    if op == "<-->":
-                        policy.add_reachability_policy(role_to, role_from, service_to)
+                    if op == "--/->" or op == "<-/->":
+                        policy.add_reachability_policy(role_from, role_to, service_to)
+                        if op == "<-/->":
+                            policy.add_reachability_policy(role_to, role_from, service_to)
+                    elif op == "-/->>":
+                        policy.add_reachability_policy(role_from, role_to, condition={"state": "RELATED,ESTABLISHED"})
 
     @classmethod
     def match(self, regex, chars, function=None):
